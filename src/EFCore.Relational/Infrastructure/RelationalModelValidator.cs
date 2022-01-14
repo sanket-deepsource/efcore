@@ -1240,31 +1240,39 @@ public class RelationalModelValidator : ModelValidator
         IModel model,
         IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
     {
-        foreach (var rootEntityType in model.GetEntityTypes())
+        foreach (var entityType in model.GetEntityTypes())
         {
-            if (rootEntityType.BaseType != null)
+            if (entityType.BaseType != null)
             {
+                var derivedMappingStrategy = (string?)entityType[RelationalAnnotationNames.MappingStrategy];
+                if (derivedMappingStrategy != null
+                    && derivedMappingStrategy != entityType.BaseType.GetMappingStrategy())
+                {
+                    throw new InvalidOperationException(
+                       RelationalStrings.DerivedStrategy(entityType.DisplayName(), derivedMappingStrategy));
+                }
+
                 continue;
             }
 
             // Hierarchy mapping strategy must be the same across all types of mappings
-            var isTph = rootEntityType.FindPrimaryKey() == null
-                || rootEntityType.FindDiscriminatorProperty() != null;
+            var isTph = entityType.FindPrimaryKey() == null
+                || entityType.FindDiscriminatorProperty() != null;
             if (isTph)
             {
-                ValidateTPHMapping(rootEntityType, forTables: false);
-                ValidateTPHMapping(rootEntityType, forTables: true);
-                ValidateDiscriminatorValues(rootEntityType);
+                ValidateTPHMapping(entityType, forTables: false);
+                ValidateTPHMapping(entityType, forTables: true);
+                ValidateDiscriminatorValues(entityType);
             }
             else
             {
-                ValidateTPTMapping(rootEntityType, forTables: false);
-                ValidateTPTMapping(rootEntityType, forTables: true);
+                ValidateNonTPHMapping(entityType, forTables: false);
+                ValidateNonTPHMapping(entityType, forTables: true);
             }
         }
     }
 
-    private static void ValidateTPTMapping(IEntityType rootEntityType, bool forTables)
+    private static void ValidateNonTPHMapping(IEntityType rootEntityType, bool forTables)
     {
         var derivedTypes = new Dictionary<(string, string?), IEntityType>();
         foreach (var entityType in rootEntityType.GetDerivedTypesInclusive())

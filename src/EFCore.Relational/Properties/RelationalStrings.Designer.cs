@@ -296,6 +296,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 valuesCount, columnsCount, table);
 
         /// <summary>
+        ///     The derived entity type '{entityType}' was configured with the '{strategy}' mapping strategy. Only the root entity type should be configured with a mapping strategy. See https://go.microsoft.com/fwlink/?linkid=2130430 for more information.
+        /// </summary>
+        public static string DerivedStrategy(object? entityType, object? strategy)
+            => string.Format(
+                GetString("DerivedStrategy", nameof(entityType), nameof(strategy)),
+                entityType, strategy);
+
+        /// <summary>
         ///     Using 'Distinct' operation on a projection containing a collection is not supported.
         /// </summary>
         public static string DistinctOnCollectionNotSupported
@@ -920,7 +928,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 parameterName, functionName);
 
         /// <summary>
-        ///     Both '{entityType}' and '{otherEntityType}' are mapped to the table '{table}'. All the entity types in a hierarchy that don't have a discriminator must be mapped to different tables. See https://go.microsoft.com/fwlink/?linkid=2130430 for more information.
+        ///     Both '{entityType}' and '{otherEntityType}' are mapped to the table '{table}'. All the entity types in a non-TPH hierarchy (one that doesn't have a discriminator) must be mapped to different tables. See https://go.microsoft.com/fwlink/?linkid=2130430 for more information.
         /// </summary>
         public static string NonTPHTableClash(object? entityType, object? otherEntityType, object? table)
             => string.Format(
@@ -928,7 +936,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 entityType, otherEntityType, table);
 
         /// <summary>
-        ///     Both '{entityType}' and '{otherEntityType}' are mapped to the view '{view}'. All the entity types in a hierarchy that don't have a discriminator must be mapped to different views. See https://go.microsoft.com/fwlink/?linkid=2130430 for more information.
+        ///     Both '{entityType}' and '{otherEntityType}' are mapped to the view '{view}'. All the entity types in a non-TPH hierarchy (one that doesn't have a discriminator) must be mapped to different views. See https://go.microsoft.com/fwlink/?linkid=2130430 for more information.
         /// </summary>
         public static string NonTPHViewClash(object? entityType, object? otherEntityType, object? view)
             => string.Format(

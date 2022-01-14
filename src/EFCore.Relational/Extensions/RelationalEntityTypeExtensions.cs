@@ -254,7 +254,7 @@ public static class RelationalEntityTypeExtensions
     public static IEnumerable<ITableMappingBase> GetDefaultMappings(this IEntityType entityType)
         => (IEnumerable<ITableMappingBase>?)entityType.FindRuntimeAnnotationValue(
                 RelationalAnnotationNames.DefaultMappings)
-            ?? Array.Empty<ITableMappingBase>();
+            ?? Enumerable.Empty<ITableMappingBase>();
 
     /// <summary>
     ///     Returns the tables to which the entity type is mapped.
@@ -264,7 +264,7 @@ public static class RelationalEntityTypeExtensions
     public static IEnumerable<ITableMapping> GetTableMappings(this IEntityType entityType)
         => (IEnumerable<ITableMapping>?)entityType.FindRuntimeAnnotationValue(
                 RelationalAnnotationNames.TableMappings)
-            ?? Array.Empty<ITableMapping>();
+            ?? Enumerable.Empty<ITableMapping>();
 
     /// <summary>
     ///     Returns the name of the view to which the entity type is mapped or <see langword="null" /> if not mapped to a view.
@@ -428,7 +428,7 @@ public static class RelationalEntityTypeExtensions
     public static IEnumerable<IViewMapping> GetViewMappings(this IEntityType entityType)
         => (IEnumerable<IViewMapping>?)entityType.FindRuntimeAnnotationValue(
                 RelationalAnnotationNames.ViewMappings)
-            ?? Array.Empty<IViewMapping>();
+            ?? Enumerable.Empty<IViewMapping>();
 
     /// <summary>
     ///     Gets the default SQL query name that would be used for this entity type when mapped using
@@ -493,7 +493,7 @@ public static class RelationalEntityTypeExtensions
     public static IEnumerable<ISqlQueryMapping> GetSqlQueryMappings(this IEntityType entityType)
         => (IEnumerable<ISqlQueryMapping>?)entityType.FindRuntimeAnnotationValue(
                 RelationalAnnotationNames.SqlQueryMappings)
-            ?? Array.Empty<ISqlQueryMapping>();
+            ?? Enumerable.Empty<ISqlQueryMapping>();
 
     /// <summary>
     ///     Returns the name of the function to which the entity type is mapped or <see langword="null" /> if not mapped to a function.
@@ -549,7 +549,7 @@ public static class RelationalEntityTypeExtensions
     public static IEnumerable<IFunctionMapping> GetFunctionMappings(this IEntityType entityType)
         => (IEnumerable<IFunctionMapping>?)entityType.FindRuntimeAnnotationValue(
                 RelationalAnnotationNames.FunctionMappings)
-            ?? Array.Empty<IFunctionMapping>();
+            ?? Enumerable.Empty<IFunctionMapping>();
 
     /// <summary>
     ///     Finds an <see cref="IReadOnlyCheckConstraint" /> with the given name.
@@ -956,5 +956,59 @@ public static class RelationalEntityTypeExtensions
     public static ConfigurationSource? GetIsTableExcludedFromMigrationsConfigurationSource(
         this IConventionEntityType entityType)
         => entityType.FindAnnotation(RelationalAnnotationNames.IsTableExcludedFromMigrations)
+            ?.GetConfigurationSource();
+
+    /// <summary>
+    ///     Gets a value indicating whether the inherited properties are mapped to the same table as the derived ones.
+    /// </summary>
+    /// <param name="entityType">The entity type.</param>
+    /// <returns>A value indicating whether the inherited properties are mapped to the same table as the derived ones.</returns>
+    public static string? GetMappingStrategy(this IReadOnlyEntityType entityType)
+    {
+        var inherited = (string?)entityType[RelationalAnnotationNames.MappingStrategy];
+        if (inherited != null)
+        {
+            return inherited;
+        }
+
+        if (entityType.BaseType != null)
+        {
+            return entityType.GetRootType().GetMappingStrategy();
+        }
+
+        return null;
+    }
+
+    /// <summary>
+    ///     Sets a value indicating whether the inherited properties are mapped to the same table as the derived ones.
+    /// </summary>
+    /// <param name="entityType">The entity type.</param>
+    /// <param name="strategy">A value indicating whether the inherited properties are mapped to the same table as the derived ones.</param>
+    public static void SetMappingStrategy(this IMutableEntityType entityType, string? strategy)
+        => entityType.SetOrRemoveAnnotation(RelationalAnnotationNames.MappingStrategy, strategy);
+
+    /// <summary>
+    ///     Sets a value indicating whether the inherited properties are mapped to the same table as the derived ones.
+    /// </summary>
+    /// <param name="entityType">The entity type.</param>
+    /// <param name="strategy">A value indicating whether the inherited properties are mapped to the same table as the derived ones.</param>
+    /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
+    /// <returns>The configured value.</returns>
+    public static bool? SetMappingStrategy(
+        this IConventionEntityType entityType,
+        string? strategy,
+        bool fromDataAnnotation = false)
+        => (bool?)entityType.SetOrRemoveAnnotation(
+                RelationalAnnotationNames.MappingStrategy, strategy, fromDataAnnotation)
+            ?.Value;
+
+    /// <summary>
+    ///     Gets the <see cref="ConfigurationSource" /> for <see cref="GetMappingStrategy" />.
+    /// </summary>
+    /// <param name="entityType">The entity type to find configuration source for.</param>
+    /// <returns>The <see cref="ConfigurationSource" /> for <see cref="GetMappingStrategy" />.</returns>
+    public static ConfigurationSource? GetMappingStrategyConfigurationSource(
+        this IConventionEntityType entityType)
+        => entityType.FindAnnotation(RelationalAnnotationNames.MappingStrategy)
             ?.GetConfigurationSource();
 }
