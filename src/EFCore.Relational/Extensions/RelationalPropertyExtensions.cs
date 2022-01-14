@@ -32,12 +32,6 @@ public static class RelationalPropertyExtensions
     /// <returns>The name of the column to which the property is mapped.</returns>
     public static string? GetColumnName(this IReadOnlyProperty property, in StoreObjectIdentifier storeObject)
     {
-        var overrides = RelationalPropertyOverrides.Find(property, storeObject);
-        if (overrides?.ColumnNameOverriden == true)
-        {
-            return overrides.ColumnName;
-        }
-
         if (storeObject.StoreObjectType != StoreObjectType.Function
             && storeObject.StoreObjectType != StoreObjectType.SqlQuery)
         {
@@ -62,6 +56,12 @@ public static class RelationalPropertyExtensions
             {
                 return null;
             }
+        }
+
+        var overrides = RelationalPropertyOverrides.Find(property, storeObject);
+        if (overrides?.ColumnNameOverriden == true)
+        {
+            return overrides.ColumnName;
         }
 
         var columnAnnotation = property.FindAnnotation(RelationalAnnotationNames.ColumnName);
