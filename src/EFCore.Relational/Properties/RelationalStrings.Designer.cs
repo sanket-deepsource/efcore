@@ -768,6 +768,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 entityType, baseEntityType);
 
         /// <summary>
+        ///     The mapping strategy '{mappingStrategy}' specified on '{entityType}' is not supported.
+        /// </summary>
+        public static string InvalidMappingStrategy(object? mappingStrategy, object? entityType)
+            => string.Format(
+                GetString("InvalidMappingStrategy", nameof(mappingStrategy), nameof(entityType)),
+                mappingStrategy, entityType);
+
+        /// <summary>
         ///     The specified 'MaxBatchSize' value '{value}' is not valid. It must be a positive number.
         /// </summary>
         public static string InvalidMaxBatchSize(object? value)
@@ -2050,6 +2058,31 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
             }
 
             return (FallbackEventDefinition)definition;
+        }
+
+        /// <summary>
+        ///     The foreign key {foreignKeyProperties} on the entity type '{entityType}' targeting '{principalEntityType}' cannot be represented in the database. '{principalEntityType}' is mapped using the table per concrete type meaning that the derived entities will not be present in {'principalTable'}. If '{entityType}' will never reference entities derived from '{principalEntityType}' then the foreign key constraint name can be specified explicitly to force it to be created.
+        /// </summary>
+        public static EventDefinition<string, string, string, string> LogForeignKeyTPCPrincipal(IDiagnosticsLogger logger)
+        {
+            var definition = ((RelationalLoggingDefinitions)logger.Definitions).LogForeignKeyTPCPrincipal;
+            if (definition == null)
+            {
+                definition = NonCapturingLazyInitializer.EnsureInitialized(
+                    ref ((RelationalLoggingDefinitions)logger.Definitions).LogForeignKeyTPCPrincipal,
+                    logger,
+                    static logger => new EventDefinition<string, string, string, string>(
+                        logger.Options,
+                        RelationalEventId.LogForeignKeyTPCPrincipal,
+                        LogLevel.Warning,
+                        "RelationalEventId.LogForeignKeyTPCPrincipal",
+                        level => LoggerMessage.Define<string, string, string, string>(
+                            level,
+                            RelationalEventId.LogForeignKeyTPCPrincipal,
+                            _resourceManager.GetString("LogForeignKeyTPCPrincipal")!)));
+            }
+
+            return (EventDefinition<string, string, string, string>)definition;
         }
 
         /// <summary>

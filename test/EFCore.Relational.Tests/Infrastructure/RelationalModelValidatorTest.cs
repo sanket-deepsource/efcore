@@ -1736,6 +1736,18 @@ public partial class RelationalModelValidatorTest : ModelValidatorTest
     }
 
     [ConditionalFact]
+    public virtual void Detects_invalid_MappingStrategy()
+    {
+        var modelBuilder = CreateConventionalModelBuilder();
+        modelBuilder.Entity<Animal>().HasAnnotation(RelationalAnnotationNames.MappingStrategy, "TTT");
+        modelBuilder.Entity<Cat>();
+
+        VerifyError(
+            RelationalStrings.InvalidMappingStrategy("TTT", nameof(Animal)),
+            modelBuilder);
+    }
+
+    [ConditionalFact]
     public virtual void Detects_MappingStrategy_on_derived_types()
     {
         var modelBuilder = CreateConventionalModelBuilder();
@@ -1872,13 +1884,12 @@ public partial class RelationalModelValidatorTest : ModelValidatorTest
     public virtual void Detects_unmapped_foreign_keys_in_TPC()
     {
         var modelBuilder = CreateConventionalModelBuilder();
-        modelBuilder.Entity<Animal>()
-            .UseTpcMappingStrategy()
-            .Ignore(a => a.FavoritePerson)
-            .Property<int>("FavoritePersonId");
-        modelBuilder.Entity<Cat>().ToTable("Cat")
-            .HasOne<Person>().WithMany()
-            .HasForeignKey("FavoritePersonId");
+        modelBuilder.Entity<Animal>().UseTpcMappingStrategy();
+        modelBuilder.Entity<Cat>().ToTable("Cat");
+        modelBuilder.Entity<Person>()
+            .HasOne<Animal>().WithOne(a => a.FavoritePerson)
+            .HasForeignKey<Person>(p => p.FavoriteBreed)
+            .HasPrincipalKey<Animal>(a => a.Name);
 
         var definition =
             RelationalResources.LogForeignKeyPropertiesMappedToUnrelatedTables(new TestLogger<TestRelationalLoggingDefinitions>());
@@ -1891,7 +1902,7 @@ public partial class RelationalModelValidatorTest : ModelValidatorTest
                     "{'FavoritePersonId'}", nameof(Cat), nameof(Person), "{'FavoritePersonId'}", nameof(Cat), "{'Id'}",
                     nameof(Person))),
             modelBuilder,
-            LogLevel.Error);
+            LogLevel.Warning);
     }
 
     [ConditionalFact]

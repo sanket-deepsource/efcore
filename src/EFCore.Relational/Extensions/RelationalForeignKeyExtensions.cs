@@ -39,6 +39,12 @@ public static class RelationalForeignKeyExtensions
         in StoreObjectIdentifier storeObject,
         in StoreObjectIdentifier principalStoreObject)
     {
+        if (storeObject.StoreObjectType != StoreObjectType.Table
+            || principalStoreObject.StoreObjectType != StoreObjectType.Table)
+        {
+            return null;
+        }
+
         var annotation = foreignKey.FindAnnotation(RelationalAnnotationNames.Name);
         return annotation != null
             ? (string?)annotation.Value
@@ -79,6 +85,12 @@ public static class RelationalForeignKeyExtensions
         in StoreObjectIdentifier storeObject,
         in StoreObjectIdentifier principalStoreObject)
     {
+        if (storeObject.StoreObjectType != StoreObjectType.Table
+            || principalStoreObject.StoreObjectType != StoreObjectType.Table)
+        {
+            return null;
+        }
+
         var propertyNames = foreignKey.Properties.GetColumnNames(storeObject);
         var principalPropertyNames = foreignKey.PrincipalKey.Properties.GetColumnNames(principalStoreObject);
         if (propertyNames == null
@@ -125,6 +137,12 @@ public static class RelationalForeignKeyExtensions
         if (rootForeignKey != foreignKey)
         {
             return rootForeignKey.GetConstraintName(storeObject, principalStoreObject);
+        }
+
+        if (foreignKey.PrincipalEntityType.GetMappingStrategy() == RelationalAnnotationNames.TpcMappingStrategy
+            && foreignKey.PrincipalEntityType.GetDerivedTypes().Any(et => StoreObjectIdentifier.Create(et, StoreObjectType.Table) != null))
+        {
+            return null;
         }
 
         var baseName = new StringBuilder()
