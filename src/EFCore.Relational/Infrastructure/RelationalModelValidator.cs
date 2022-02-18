@@ -1053,7 +1053,7 @@ public class RelationalModelValidator : ModelValidator
             {
                 if (foreignKey.PrincipalEntityType.GetMappingStrategy() == RelationalAnnotationNames.TpcMappingStrategy)
                 {
-                    logger.ForeignKeyPropertiesMappedToUnrelatedTables(foreignKey);
+                    logger.ForeignKeyTPCPrincipal(foreignKey);
                 }
 
                 var derivedTables = foreignKey.DeclaringEntityType.GetDerivedTypes()
@@ -1270,6 +1270,22 @@ public class RelationalModelValidator : ModelValidator
                 || entityType.FindDiscriminatorProperty() != null;
             if (isTph)
             {
+                if (mappingStrategy != null
+                    && mappingStrategy != RelationalAnnotationNames.TphMappingStrategy)
+                {
+                    if (entityType.FindPrimaryKey() == null)
+                    {
+                        throw new InvalidOperationException(
+                           RelationalStrings.KeylessMappingStrategy(mappingStrategy, entityType.DisplayName()));
+                    }
+
+                    if (entityType.FindDiscriminatorProperty() != null)
+                    {
+                        throw new InvalidOperationException(
+                           RelationalStrings.NonTphMappingStrategy(mappingStrategy, entityType.DisplayName()));
+                    }
+                }
+
                 ValidateTPHMapping(entityType, forTables: false);
                 ValidateTPHMapping(entityType, forTables: true);
                 ValidateDiscriminatorValues(entityType);

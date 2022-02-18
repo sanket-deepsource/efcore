@@ -2853,10 +2853,10 @@ public static class RelationalLoggerExtensions
                     foreignKey.Properties.Format(),
                     foreignKey.DeclaringEntityType.DisplayName(),
                     foreignKey.PrincipalEntityType.DisplayName(),
-                    foreignKey.Properties.Format(),
-                    foreignKey.DeclaringEntityType.GetSchemaQualifiedTableName(),
-                    foreignKey.PrincipalKey.Properties.Format(),
-                    foreignKey.PrincipalEntityType.GetSchemaQualifiedTableName()));
+                    foreignKey.PrincipalEntityType.DisplayName(),
+                    foreignKey.PrincipalEntityType.GetSchemaQualifiedTableName()!,
+                    foreignKey.DeclaringEntityType.DisplayName(),
+                    foreignKey.PrincipalEntityType.DisplayName()));
         }
 
         if (diagnostics.NeedsEventData(definition, out var diagnosticSourceEnabled, out var simpleLogEnabled))
@@ -2882,10 +2882,10 @@ public static class RelationalLoggerExtensions
                 p.ForeignKey.Properties.Format(),
                 p.ForeignKey.DeclaringEntityType.DisplayName(),
                 p.ForeignKey.PrincipalEntityType.DisplayName(),
-                p.ForeignKey.Properties.Format(),
-                p.ForeignKey.DeclaringEntityType.GetSchemaQualifiedTableName(),
-                p.ForeignKey.PrincipalKey.Properties.Format(),
-                p.ForeignKey.PrincipalEntityType.GetSchemaQualifiedTableName()));
+                p.ForeignKey.PrincipalEntityType.GetSchemaQualifiedTableName()!,
+                p.ForeignKey.PrincipalEntityType.DisplayName(),
+                p.ForeignKey.DeclaringEntityType.DisplayName(),
+                p.ForeignKey.PrincipalEntityType.DisplayName()));
     }
 
     /// <summary>

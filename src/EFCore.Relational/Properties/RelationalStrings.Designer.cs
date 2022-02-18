@@ -792,6 +792,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 value);
 
         /// <summary>
+        ///     The mapping strategy '{mappingStrategy}' specified on '{entityType}' is not supported for keyless entity types.
+        /// </summary>
+        public static string KeylessMappingStrategy(object? mappingStrategy, object? entityType)
+            => string.Format(
+                GetString("KeylessMappingStrategy", nameof(mappingStrategy), nameof(entityType)),
+                mappingStrategy, entityType);
+
+        /// <summary>
         ///     Queries performing '{method}' operation must have a deterministic sort order. Rewrite the query to apply an 'OrderBy' operation on the sequence before calling '{method}'.
         /// </summary>
         public static string LastUsedWithoutOrderBy(object? method)
@@ -934,6 +942,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => string.Format(
                 GetString("NonScalarFunctionParameterCannotPropagatesNullability", nameof(parameterName), nameof(functionName)),
                 parameterName, functionName);
+
+        /// <summary>
+        ///     The mapping strategy '{mappingStrategy}' specified on '{entityType}' is not supported for entity types with a discriminator.
+        /// </summary>
+        public static string NonTphMappingStrategy(object? mappingStrategy, object? entityType)
+            => string.Format(
+                GetString("NonTphMappingStrategy", nameof(mappingStrategy), nameof(entityType)),
+                mappingStrategy, entityType);
 
         /// <summary>
         ///     Both '{entityType}' and '{otherEntityType}' are mapped to the table '{table}'. All the entity types in a non-TPH hierarchy (one that doesn't have a discriminator) must be mapped to different tables. See https://go.microsoft.com/fwlink/?linkid=2130430 for more information.
@@ -2061,9 +2077,9 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
         }
 
         /// <summary>
-        ///     The foreign key {foreignKeyProperties} on the entity type '{entityType}' targeting '{principalEntityType}' cannot be represented in the database. '{principalEntityType}' is mapped using the table per concrete type meaning that the derived entities will not be present in {'principalTable'}. If '{entityType}' will never reference entities derived from '{principalEntityType}' then the foreign key constraint name can be specified explicitly to force it to be created.
+        ///     The foreign key {foreignKeyProperties} on the entity type '{entityType}' targeting '{principalEntityType}' cannot be represented in the database. '{principalEntityType}' is mapped using the table per concrete type meaning that the derived entities will not be present in {'principalTable'}. If this foreign key on '{entityType}' will never reference entities derived from '{principalEntityType}' then the foreign key constraint name can be specified explicitly to force it to be created.
         /// </summary>
-        public static EventDefinition<string, string, string, string> LogForeignKeyTPCPrincipal(IDiagnosticsLogger logger)
+        public static FallbackEventDefinition LogForeignKeyTPCPrincipal(IDiagnosticsLogger logger)
         {
             var definition = ((RelationalLoggingDefinitions)logger.Definitions).LogForeignKeyTPCPrincipal;
             if (definition == null)
@@ -2071,18 +2087,15 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
                 definition = NonCapturingLazyInitializer.EnsureInitialized(
                     ref ((RelationalLoggingDefinitions)logger.Definitions).LogForeignKeyTPCPrincipal,
                     logger,
-                    static logger => new EventDefinition<string, string, string, string>(
+                    static logger => new FallbackEventDefinition(
                         logger.Options,
-                        RelationalEventId.LogForeignKeyTPCPrincipal,
+                        RelationalEventId.ForeignKeyTPCPrincipal,
                         LogLevel.Warning,
-                        "RelationalEventId.LogForeignKeyTPCPrincipal",
-                        level => LoggerMessage.Define<string, string, string, string>(
-                            level,
-                            RelationalEventId.LogForeignKeyTPCPrincipal,
-                            _resourceManager.GetString("LogForeignKeyTPCPrincipal")!)));
+                        "RelationalEventId.ForeignKeyTPCPrincipal",
+                        _resourceManager.GetString("LogForeignKeyTPCPrincipal")!));
             }
 
-            return (EventDefinition<string, string, string, string>)definition;
+            return (FallbackEventDefinition)definition;
         }
 
         /// <summary>

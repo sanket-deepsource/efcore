@@ -412,6 +412,9 @@
   <data name="InvalidMinBatchSize" xml:space="preserve">
     <value>The specified 'MinBatchSize' value '{value}' is not valid. It must be a positive number.</value>
   </data>
+  <data name="KeylessMappingStrategy" xml:space="preserve">
+    <value>The mapping strategy '{mappingStrategy}' specified on '{entityType}' is not supported for keyless entity types.</value>
+  </data>
   <data name="LastUsedWithoutOrderBy" xml:space="preserve">
     <value>Queries performing '{method}' operation must have a deterministic sort order. Rewrite the query to apply an 'OrderBy' operation on the sequence before calling '{method}'.</value>
   </data>
@@ -536,8 +539,8 @@
     <comment>Error RelationalEventId.ForeignKeyPropertiesMappedToUnrelatedTables string string string string string string string</comment>
   </data>
   <data name="LogForeignKeyTPCPrincipal" xml:space="preserve">
-    <value>The foreign key {foreignKeyProperties} on the entity type '{entityType}' targeting '{principalEntityType}' cannot be represented in the database. '{principalEntityType}' is mapped using the table per concrete type meaning that the derived entities will not be present in {'principalTable'}. If '{entityType}' will never reference entities derived from '{principalEntityType}' then the foreign key constraint name can be specified explicitly to force it to be created.</value>
-    <comment>Warning RelationalEventId.LogForeignKeyTPCPrincipal string string string string</comment>
+    <value>The foreign key {foreignKeyProperties} on the entity type '{entityType}' targeting '{principalEntityType}' cannot be represented in the database. '{principalEntityType}' is mapped using the table per concrete type meaning that the derived entities will not be present in {'principalTable'}. If this foreign key on '{entityType}' will never reference entities derived from '{principalEntityType}' then the foreign key constraint name can be specified explicitly to force it to be created.</value>
+    <comment>Warning RelationalEventId.ForeignKeyTPCPrincipal string string string string string string string</comment>
   </data>
   <data name="LogGeneratingDown" xml:space="preserve">
     <value>Generating down script for migration '{migration}'.</value>
@@ -711,6 +714,9 @@
   </data>
   <data name="NonScalarFunctionParameterCannotPropagatesNullability" xml:space="preserve">
     <value>Cannot set 'PropagatesNullability' on parameter '{parameterName}' of DbFunction '{functionName}' since function does not represent a scalar function.</value>
+  </data>
+  <data name="NonTphMappingStrategy" xml:space="preserve">
+    <value>The mapping strategy '{mappingStrategy}' specified on '{entityType}' is not supported for entity types with a discriminator.</value>
   </data>
   <data name="NonTPHTableClash" xml:space="preserve">
     <value>Both '{entityType}' and '{otherEntityType}' are mapped to the table '{table}'. All the entity types in a non-TPH hierarchy (one that doesn't have a discriminator) must be mapped to different tables. See https://go.microsoft.com/fwlink/?linkid=2130430 for more information.</value>

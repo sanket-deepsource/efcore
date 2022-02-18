@@ -1786,14 +1786,14 @@ public partial class RelationalModelValidatorTest : ModelValidatorTest
     }
 
     [ConditionalFact]
-    public virtual void Detects_TPC_with_discriminator()
+    public virtual void Detects_TPC_on_keyless_entity_type()
     {
         var modelBuilder = CreateConventionalModelBuilder();
-        modelBuilder.Entity<Animal>().UseTpcMappingStrategy().HasDiscriminator<int>("Discriminator");
+        modelBuilder.Entity<Animal>().UseTpcMappingStrategy().HasNoKey();
         modelBuilder.Entity<Cat>().ToTable("Cat");
 
         VerifyError(
-            RelationalStrings.TPHTableMismatch(nameof(Cat), nameof(Cat), nameof(Animal), nameof(Animal)),
+            RelationalStrings.KeylessMappingStrategy("TPC", nameof(Animal)),
             modelBuilder);
     }
 
@@ -1805,7 +1805,7 @@ public partial class RelationalModelValidatorTest : ModelValidatorTest
         modelBuilder.Entity<Cat>().ToView("Cat");
 
         VerifyError(
-            RelationalStrings.TPHViewMismatch(nameof(Cat), nameof(Cat), nameof(Animal), nameof(Animal)),
+            RelationalStrings.NonTphMappingStrategy("TPC", nameof(Animal)),
             modelBuilder);
     }
 
@@ -1892,15 +1892,15 @@ public partial class RelationalModelValidatorTest : ModelValidatorTest
             .HasPrincipalKey<Animal>(a => a.Name);
 
         var definition =
-            RelationalResources.LogForeignKeyPropertiesMappedToUnrelatedTables(new TestLogger<TestRelationalLoggingDefinitions>());
+            RelationalResources.LogForeignKeyTPCPrincipal(new TestLogger<TestRelationalLoggingDefinitions>());
         VerifyWarning(
             definition.GenerateMessage(
                 l => l.Log(
                     definition.Level,
                     definition.EventId,
                     definition.MessageFormat,
-                    "{'FavoritePersonId'}", nameof(Cat), nameof(Person), "{'FavoritePersonId'}", nameof(Cat), "{'Id'}",
-                    nameof(Person))),
+                    "{'FavoriteBreed'}", nameof(Person), nameof(Animal), nameof(Animal), nameof(Animal), nameof(Person),
+                    nameof(Animal))),
             modelBuilder,
             LogLevel.Warning);
     }

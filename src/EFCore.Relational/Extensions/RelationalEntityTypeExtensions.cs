@@ -994,11 +994,11 @@ public static class RelationalEntityTypeExtensions
     /// <param name="strategy">A value indicating whether the inherited properties are mapped to the same table as the derived ones.</param>
     /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
     /// <returns>The configured value.</returns>
-    public static bool? SetMappingStrategy(
+    public static string? SetMappingStrategy(
         this IConventionEntityType entityType,
         string? strategy,
         bool fromDataAnnotation = false)
-        => (bool?)entityType.SetOrRemoveAnnotation(
+        => (string?)entityType.SetOrRemoveAnnotation(
                 RelationalAnnotationNames.MappingStrategy, strategy, fromDataAnnotation)
             ?.Value;
 

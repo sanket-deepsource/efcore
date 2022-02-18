@@ -280,15 +280,19 @@ public class CheckConstraint : ConventionAnnotatable, IMutableCheckConstraint, I
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual string Name
+    public virtual string? Name
     {
-        get => _name ?? ((IReadOnlyCheckConstraint)this).GetDefaultName() ?? ModelName;
+        get => EntityType.GetTableName() == null
+            ? null
+            : _name ?? ((IReadOnlyCheckConstraint)this).GetDefaultName() ?? ModelName;
         set => SetName(value, ConfigurationSource.Explicit);
     }
 
     /// <inheritdoc />
     public virtual string? GetName(in StoreObjectIdentifier storeObject)
-        => _name ?? ((IReadOnlyCheckConstraint)this).GetDefaultName(storeObject) ?? ModelName;
+        => storeObject.StoreObjectType == StoreObjectType.Table
+        ? _name ?? ((IReadOnlyCheckConstraint)this).GetDefaultName(storeObject) ?? ModelName
+        : null;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
