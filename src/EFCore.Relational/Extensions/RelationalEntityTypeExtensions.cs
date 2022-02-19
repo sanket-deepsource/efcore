@@ -34,17 +34,12 @@ public static class RelationalEntityTypeExtensions
             return (string?)nameAnnotation.Value;
         }
 
-        if (entityType.BaseType != null)
-        {
-            return entityType.GetRootType().GetTableName();
-        }
-
         return (entityType as IConventionEntityType)?.GetViewNameConfigurationSource() == null
-            && ((entityType as IConventionEntityType)?.GetFunctionNameConfigurationSource() == null)
+            && (entityType as IConventionEntityType)?.GetFunctionNameConfigurationSource() == null
 #pragma warning disable CS0618 // Type or member is obsolete
-            && ((entityType as IConventionEntityType)?.GetDefiningQueryConfigurationSource() == null)
+            && (entityType as IConventionEntityType)?.GetDefiningQueryConfigurationSource() == null
 #pragma warning restore CS0618 // Type or member is obsolete
-            && ((entityType as IConventionEntityType)?.GetSqlQueryConfigurationSource() == null)
+            && (entityType as IConventionEntityType)?.GetSqlQueryConfigurationSource() == null
                 ? GetDefaultTableName(entityType)
                 : null;
     }
@@ -57,6 +52,12 @@ public static class RelationalEntityTypeExtensions
     /// <returns>The default name of the table to which the entity type would be mapped.</returns>
     public static string? GetDefaultTableName(this IReadOnlyEntityType entityType, bool truncate = true)
     {
+        if (entityType.GetDiscriminatorPropertyName() != null
+                && entityType.BaseType != null)
+        {
+            return entityType.GetRootType().GetTableName();
+        }
+
         var ownership = entityType.FindOwnership();
         if (ownership != null
             && ownership.IsUnique)

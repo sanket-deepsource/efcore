@@ -1726,6 +1726,17 @@ public partial class RelationalModelValidatorTest : ModelValidatorTest
     }
 
     [ConditionalFact]
+    public virtual void Passes_for_ToTable_for_abstract_class()
+    {
+        var modelBuilder = CreateConventionalModelBuilder();
+        modelBuilder.Entity<Abstract>().ToTable("Abstract");
+        modelBuilder.Entity<A>();
+        modelBuilder.Entity<Generic<string>>();
+
+        Validate(modelBuilder);
+    }
+
+    [ConditionalFact]
     public virtual void Passes_for_view_TPC()
     {
         var modelBuilder = CreateConventionalModelBuilder();
@@ -1757,6 +1768,19 @@ public partial class RelationalModelValidatorTest : ModelValidatorTest
 
         VerifyError(
             RelationalStrings.DerivedStrategy(nameof(Cat), "TPC"),
+            modelBuilder);
+    }
+
+    [ConditionalFact]
+    public virtual void Detects_ToView_for_abstract_class_TPC()
+    {
+        var modelBuilder = CreateConventionalModelBuilder();
+        modelBuilder.Entity<Abstract>().ToTable("Abstract");
+        modelBuilder.Entity<A>();
+        modelBuilder.Entity<Generic<string>>();
+
+        VerifyError(
+            RelationalStrings.AbstractTPC(nameof(Cat), "TPC"),
             modelBuilder);
     }
 

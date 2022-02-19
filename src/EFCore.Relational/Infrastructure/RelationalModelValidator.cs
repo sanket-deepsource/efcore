@@ -1251,6 +1251,12 @@ public class RelationalModelValidator : ModelValidator
             if (mappingStrategy != null)
             {
                 ValidateMappingStrategy(mappingStrategy, entityType);
+                if (mappingStrategy == RelationalAnnotationNames.TpcMappingStrategy
+                    && entityType.ClrType.IsInstantiable())
+                {
+                    throw new InvalidOperationException(
+                       RelationalStrings.AbstractTPC(entityType.DisplayName(), mappingStrategy));
+                }
             }
 
             if (entityType.BaseType != null)

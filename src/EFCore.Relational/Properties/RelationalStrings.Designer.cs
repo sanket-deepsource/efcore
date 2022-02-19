@@ -27,6 +27,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             = new ResourceManager("Microsoft.EntityFrameworkCore.Properties.RelationalStrings", typeof(RelationalStrings).Assembly);
 
         /// <summary>
+        ///     The corresponding CLR type for entity type '{entityType}' cannot be instantiated, but the entity type was mapped to '{storeObject}' using the 'TPC' mapping strategy. Only instantiable types should be mapped. See https://go.microsoft.com/fwlink/?linkid=2130430 for more information.
+        /// </summary>
+        public static string AbstractTPC(object? entityType, object? storeObject)
+            => string.Format(
+                GetString("AbstractTPC", nameof(entityType), nameof(storeObject)),
+                entityType, storeObject);
+
+        /// <summary>
         ///     Unable to deserialize a sequence from model metadata. See inner exception for details.
         /// </summary>
         [Obsolete]
